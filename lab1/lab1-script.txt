@@ -1,0 +1,77 @@
+Script started on 2024-04-08 19:39:48-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="229" LINES="59"]
+[?2004h]0;boazi@cf162-15: ~/CSCI-447/lab1[01;32mboazi@cf162-15[00m:[01;34m~/CSCI-447/lab1[00m$ [H[2J]0;boazi@cf162-15: ~/CSCI-447/lab1[01;32mboazi@cf162-15[00m:[01;34m~/CSCI-447/lab1[00m$ blitz Echo
+[?2004l======================================================
+=====                                            =====
+=====         The BLITZ Machine Emulator         =====
+=====                                            =====
+=====  Copyright 2001-2007, Harry H. Porter III  =====
+=====                                            =====
+======================================================
+
+Enter a command at the prompt.  Type 'quit' to exit or 'help' for
+info about commands.
+> g
+Beginning execution...
+asdf
+asdf
+hello
+hello
+\\\"""foo
+\\\"""foo
+q
+q
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+                   cont:
+0000A4: A1FFFFAC       jmp     0xFFFFAC		! targetAddr = loop
+> q
+Number of Disk Reads    = 0
+Number of Disk Writes   = 0
+Instructions Executed   = 445246106
+Time Spent Sleeping     = 0
+    Total Elapsed Time  = 445246106
+[?2004h]0;boazi@cf162-15: ~/CSCI-447/lab1[01;32mboazi@cf162-15[00m:[01;34m~/CSCI-447/lab1[00m$ blitz Echogit config user.email boazi@wwu.edu[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[23Pcd CSCI-447/ls[Kgit config user.email boazi@wwu.edu[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[17Pcat ~/.ssh/config ls[Kmkdir lab1[8@git switch -c[C[C[C[C[C[8Ptatus[2Ppushstatuswitch -c lab1[8Pmkdir[C[C[C[C[Cls[Kcat ~/.ssh/config git config user.email boazi@wwu.edu[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cls[Kcd CSCI-447/git config user.email boazi@wwu.edu[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cblitz Echo[K[Kblitz Echo[Kblitz -g HelloWorld
+[?2004lBeginning execution...
+====================  KPL PROGRAM STARTING  ====================
+Hello, world...
+The value of b is 12
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+0028A4: 8B1EFFF0       load    [r14+0xFFF0],r1	! decimal: -16
+
+Entering machine-level debugger...
+======================================================
+=====                                            =====
+=====         The BLITZ Machine Emulator         =====
+=====                                            =====
+=====  Copyright 2001-2007, Harry H. Porter III  =====
+=====                                            =====
+======================================================
+
+Enter a command at the prompt.  Type 'quit' to exit or 'help' for
+info about commands.
+> g
+Beginning execution...
+The value of b is 13
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+0028A4: 8B1EFFF0       load    [r14+0xFFF0],r1	! decimal: -16
+> g
+Beginning execution...
+The value of b is 14
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+0028A4: 8B1EFFF0       load    [r14+0xFFF0],r1	! decimal: -16
+> q
+Number of Disk Reads    = 0
+Number of Disk Writes   = 0
+Instructions Executed   = 779
+Time Spent Sleeping     = 0
+    Total Elapsed Time  = 779
+[?2004h]0;boazi@cf162-15: ~/CSCI-447/lab1[01;32mboazi@cf162-15[00m:[01;34m~/CSCI-447/lab1[00m$ exit
+[?2004lexit
+
+Script done on 2024-04-08 19:42:13-07:00 [COMMAND_EXIT_CODE="0"]
