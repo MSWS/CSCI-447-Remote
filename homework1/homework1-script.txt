@@ -1,0 +1,64 @@
+Script started on 2024-04-08 23:47:35-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="113" LINES="57"]
+[?2004h]0;boazi@cf405-19: ~/CSCI-447/homework1[01;32mboazi@cf405-19[00m:[01;34m~/CSCI-447/homework1[00m$ exitquitmake aFunProgram && blitz -g aFunProgram[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[26Pvim Runtime.s make aFunProgram && blitz -g aFunProgram
+[?2004lasm Runtime.s
+kpl System -unsafe
+asm System.s
+asm aFunProgram.s
+lddd Runtime.o System.o aFunProgram.o -o aFunProgram
+Beginning execution...
+====================  KPL PROGRAM STARTING  ====================
+asdf
+asdf
+fdsa
+fdsa
+abc
+abc
+foobar q
+foobar q
+rebarqasdf
+rebarqasdf
+a b a q b a
+a b q b a
+q
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+002814: 87D0001A       or      r0,0x001A,r13	! decimal: 26, ascii: ".."  
+
+Entering machine-level debugger...
+======================================================
+=====                                            =====
+=====         The BLITZ Machine Emulator         =====
+=====                                            =====
+=====  Copyright 2001-2007, Harry H. Porter III  =====
+=====                                            =====
+======================================================
+
+Enter a command at the prompt.  Type 'quit' to exit or 'help' for
+info about commands.
+> g
+Beginning execution...
+
+====================  KPL PROGRAM TERMINATION  ====================
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+000D98: C0100000       sethi   0x0000,r1	! 0x00000DA8 = 3496 (noGoMessage)
+> g
+Beginning execution...
+
+The KPL program has terminated; you may not continue!
+
+****  A 'debug' instruction was encountered  *****
+Done!  The next instruction to execute will be:
+000D98: C0100000       sethi   0x0000,r1	! 0x00000DA8 = 3496 (noGoMessage)
+> q
+Number of Disk Reads    = 0
+Number of Disk Writes   = 0
+Instructions Executed   = 537773306
+Time Spent Sleeping     = 0
+    Total Elapsed Time  = 537773306
+[?2004h]0;boazi@cf405-19: ~/CSCI-447/homework1[01;32mboazi@cf405-19[00m:[01;34m~/CSCI-447/homework1[00m$ exit
+[?2004lexit
+
+Script done on 2024-04-08 23:47:59-07:00 [COMMAND_EXIT_CODE="0"]
