@@ -1,76 +1,1 @@
-Script started on 2024-04-08 23:42:41-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="113" LINES="57"]
-[?2004h]0;boazi@cf405-19: ~/CSCI-447/homework1[01;32mboazi@cf405-19[00m:[01;34m~/CSCI-447/homework1[00m$ vim Runtime.s [1Pcat Runtime.smake aFunProgram && blitz -g aFunProgram[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[23Pvim aFunProgram.kmake aFunProgram && blitz -g aFunProgram
-[?2004lmake: 'aFunProgram' is up to date.
-Beginning execution...
-====================  KPL PROGRAM STARTING  ====================
-a
-a
-abc
-abc
-foobar
-foobar
-foq   This very long e sentence should hopefully work!!!
-This very long sentence should hopefully work!!!
-Fancy      @ncy Ch@R$ aR3 N0 Pr0Bl 13m! !@#$%^&*(* )_+-=
-F@ncy Ch@R$ aR3 N0 Pr0B13m! !@#$%^&*()_+-=
-Please don't quit
-Please don't quit
-Never q
-Never q
-
-BLITZ Emulator Error: Implementation Restriction: Current time overflow
-[?2004h]0;boazi@cf405-19: ~/CSCI-447/homework1[01;32mboazi@cf405-19[00m:[01;34m~/CSCI-447/homework1[00m$ q[Kmake aFunProgram && blitz -g aFunProgram
-[?2004lmake: 'aFunProgram' is up to date.
-Beginning execution...
-====================  KPL PROGRAM STARTING  ====================
-q
-
-****  A 'debug' instruction was encountered  *****
-Done!  The next instruction to execute will be:
-002814: 87D0001A       or      r0,0x001A,r13	! decimal: 26, ascii: ".."  
-
-Entering machine-level debugger...
-======================================================
-=====                                            =====
-=====         The BLITZ Machine Emulator         =====
-=====                                            =====
-=====  Copyright 2001-2007, Harry H. Porter III  =====
-=====                                            =====
-======================================================
-
-Enter a command at the prompt.  Type 'quit' to exit or 'help' for
-info about commands.
-> q g
-Beginning execution...
-
-====================  KPL PROGRAM TERMINATION  ====================
-
-****  A 'debug' instruction was encountered  *****
-Done!  The next instruction to execute will be:
-000D98: C0100000       sethi   0x0000,r1	! 0x00000DA8 = 3496 (noGoMessage)
-> g
-Beginning execution...
-
-The KPL program has terminated; you may not continue!
-
-****  A 'debug' instruction was encountered  *****
-Done!  The next instruction to execute will be:
-000D98: C0100000       sethi   0x0000,r1	! 0x00000DA8 = 3496 (noGoMessage)
-> g
-Beginning execution...
-
-The KPL program has terminated; you may not continue!
-
-****  A 'debug' instruction was encountered  *****
-Done!  The next instruction to execute will be:
-000D98: C0100000       sethi   0x0000,r1	! 0x00000DA8 = 3496 (noGoMessage)
-> q
-Number of Disk Reads    = 0
-Number of Disk Writes   = 0
-Instructions Executed   = 80413743
-Time Spent Sleeping     = 0
-    Total Elapsed Time  = 80413743
-[?2004h]0;boazi@cf405-19: ~/CSCI-447/homework1[01;32mboazi@cf405-19[00m:[01;34m~/CSCI-447/homework1[00m$ exit
-[?2004lexit
-
-Script done on 2024-04-08 23:44:14-07:00 [COMMAND_EXIT_CODE="127"]
+homework1/homework1-script.txt
