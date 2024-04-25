@@ -2,7 +2,7 @@ code Synch
 
   -- OS Class: Project 2
   --
-  -- <PUT YOUR NAME HERE>
+  -- Isaac Boaz
 
 -----------------------------  Semaphore  ---------------------------------
 
@@ -95,26 +95,68 @@ code Synch
       ----------  Mutex . Init  ----------
 
       method Init ()
-          FatalError ("Unimplemented method")
+					heldBy = null
+					waitingThreads = new List [Thread]
         endMethod
 
       ----------  Mutex . Lock  ----------
 
       method Lock ()
-          FatalError ("Unimplemented method")
+				var
+					oldIntStat: int
+				oldIntStat = SetInterruptsTo(DISABLED)
+				if heldBy == null
+					heldBy = currentThread
+					return
+				endIf
+
+				if self.IsHeldByCurrentThread()
+					FatalError("Already locked mutex")
+					return
+				endIf
+
+				waitingThreads.AddToEnd(currentThread)
+				currentThread.Sleep()
+				oldIntStat = SetInterruptsTo(oldIntStat)
         endMethod
 
       ----------  Mutex . Unlock  ----------
 
       method Unlock ()
-          FatalError ("Unimplemented method")
+				var
+					t: ptr to Thread
+					oldIntStat: int
+				oldIntStat = SetInterruptsTo(DISABLED)
+				if heldBy == null
+					FatalError("Not locked")
+					return
+				endIf
+
+
+				if !self.IsHeldByCurrentThread()
+					FatalError("Called unlock without lock")
+					return
+				endIf
+
+				heldBy = null
+	
+				t = waitingThreads.Remove()
+				if t == null
+					oldIntStat = SetInterruptsTo(oldIntStat)
+					return
+				endIf
+				t.status = READY
+				readyList.AddToEnd(t)
+				oldIntStat = SetInterruptsTo(oldIntStat)
         endMethod
 
       ----------  Mutex . IsHeldByCurrentThread  ----------
 
       method IsHeldByCurrentThread () returns bool
-          FatalError ("Unimplemented method")
-          return false
+					if heldBy == null
+						return false
+					endIf
+					return heldBy == currentThread
         endMethod
 
   endBehavior
