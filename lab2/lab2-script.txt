@@ -1,0 +1,97 @@
+Script started on 2024-04-25 15:44:57-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="81" LINES="47"]
+[?2004h]0;boazi@cf162-16: ~/CSCI-447/lab2[01;32mboazi@cf162-16[00m:[01;34m~/CSCI-447/lab2[00m$ exitdockergit pushca "Update if assignment"status[Kmake cleancd homework1/[3Pgit statuscd homework1/[3Pmake cleangit statusca "Update if assignment"push[K[2Pdocker[2Pexit[Kmake && blitz -g so[K[Kos
+[?2004lkpl Synch
+asm Synch.s
+lddd System.o List.o Thread.o Switch.o Synch.o Main.o Runtime.o -o os
+lddd System.o List.o Thread.o Switch.o Synch.o Runtime.o Game.o -o game
+Beginning execution...
+====================  KPL PROGRAM STARTING  ====================
+Example Thread-based Programs...
+Initializing Thread Scheduler...
+
+-- You should see 70 lines, each consecutively numbered. --
+
+LockTester-A = 1
+LockTester-A = 2
+LockTester-A = 3
+LockTester-A = 4
+LockTester-A = 5
+LockTester-A = 6
+LockTester-A = 7
+LockTester-A = 8
+LockTester-A = 9
+LockTester-A = 10
+LockTester-C = 11
+LockTester-C = 12
+LockTester-C = 13
+LockTester-C = 14
+LockTester-C = 15
+LockTester-C = 16
+LockTester-C = 17
+LockTester-C = 18
+LockTester-C = 19
+LockTester-C = 20
+LockTester-D = 21
+LockTester-D = 22
+LockTester-D = 23
+LockTester-D = 24
+LockTester-D = 25
+LockTester-D = 26
+LockTester-D = 27
+LockTester-D = 28
+LockTester-D = 29
+LockTester-D = 30
+LockTester-G = 31
+LockTester-G = 32
+LockTester-G = 33
+LockTester-G = 34
+LockTester-G = 35
+LockTester-G = 36
+LockTester-G = 37
+LockTester-G = 38
+LockTester-G = 39
+LockTester-G = 40
+LockTester-E = 41
+LockTester-E = 42
+LockTester-E = 43
+LockTester-E = 44
+LockTester-E = 45
+LockTester-E = 46
+LockTester-E = 47
+LockTester-E = 48
+LockTester-E = 49
+LockTester-E = 50
+LockTester-B = 51
+LockTester-B = 52
+LockTester-B = 53
+LockTester-B = 54
+LockTester-B = 55
+LockTester-B = 56
+LockTester-B = 57
+LockTester-B = 58
+LockTester-B = 59
+LockTester-B = 60
+LockTester-F = 61
+LockTester-F = 62
+LockTester-F = 63
+LockTester-F = 64
+LockTester-F = 65
+LockTester-F = 66
+LockTester-F = 67
+LockTester-F = 68
+LockTester-F = 69
+LockTester-F = 70
+
+*****  A 'wait' instruction was executed and no more interrupts are scheduled... halting emulation!  *****
+
+Done!  The next instruction to execute will be:
+000EC8: 09000000       ret     
+Number of Disk Reads    = 0
+Number of Disk Writes   = 0
+Instructions Executed   = 240458
+Time Spent Sleeping     = 0
+    Total Elapsed Time  = 240458
+[?2004h]0;boazi@cf162-16: ~/CSCI-447/lab2[01;32mboazi@cf162-16[00m:[01;34m~/CSCI-447/lab2[00m$ exit
+[?2004lexit
+
+Script done on 2024-04-25 15:45:13-07:00 [COMMAND_EXIT_CODE="0"]
