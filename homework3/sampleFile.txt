@@ -1,8 +1,11 @@
-P1:1
+P1700:10
 arrival t:1
-exe:5
+io:2
+exe:3
+io:5
+exe:4
 terminate
-P2:2
-arrival t:1
-exe:5
+P456:5
+arrival t:3
+exe:3
 terminate

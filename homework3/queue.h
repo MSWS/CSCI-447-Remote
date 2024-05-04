@@ -25,5 +25,14 @@ int addProcessToQueue(Queue *self, Process *process);
  * arrived yet.)
  */
 int getNextProcess(Queue *self, int time);
+
+bool switchProcess(Queue *self, int time);
+
+/**
+ * Returns true if the queue is done executing all
+ * of its processes.
+ */
+bool isQueueDone(Queue *self);
+
 Queue *initQueue();
 #endif // !TYPES_QUEUE

@@ -11,38 +11,24 @@ int addProcessToQueue(Queue *self, Process *process) {
 int getNextProcess(Queue *self, int time) {
   int current = self->currentProcess;
 
-  if (self->prioritize) {
-    int highestPriority = 0;
-    int highestIndex = -1;
-    for (int i = 1; i < self->maxProcessCount; i++) {
-      int index = (i + current) % self->maxProcessCount;
-      Process *p = self->processes[index];
-      if (p == NULL) // Promoted or otherwise no longer in queue
-        continue;
-      if (p->terminated)
-        continue;
-      if (p->arrivalTime > time)
-        continue;
-      if (p->priority < highestPriority)
-        continue;
-      highestPriority = p->priority;
-      highestIndex = index;
-    }
-    return highestIndex;
-  }
-
-  for (int i = 1; i < self->maxProcessCount; i++) {
+  int highestPriority = 0;
+  int highestIndex = -1;
+  // Start at +1 to skip the current process
+  for (int i = 1; i < self->maxProcessCount + 1; i++) {
     int index = (i + current) % self->maxProcessCount;
     Process *p = self->processes[index];
-    if (p == NULL)
+    if (!readyForCPU(p, time))
       continue;
-    if (p->terminated)
+
+    if (!self->prioritize)
+      return index; // Return the first process that is ready
+
+    if (p->priority < highestPriority)
       continue;
-    if (p->arrivalTime > time)
-      continue;
-    return index;
+    highestPriority = p->priority;
+    highestIndex = index;
   }
-  return -1;
+  return highestIndex;
 }
 
 Queue *initQueue() {
@@ -53,5 +39,23 @@ Queue *initQueue() {
   result->prioritize = false;
   result->preempt = false;
   return result;
+}
+
+bool isQueueDone(Queue *self) {
+  for (int i = 0; i < self->maxProcessCount; i++) {
+    if (self->processes[i] == NULL)
+      continue;
+    if (!self->processes[i]->terminated)
+      return false;
+  }
+  return true;
+}
+
+bool switchProcess(Queue *self, int time) {
+  int next = getNextProcess(self, time);
+  if (next == -1)
+    return false;
+  self->currentProcess = next;
+  return true;
 }
 #endif /* ifndef TYPES_IMPL */
