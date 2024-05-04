@@ -3,7 +3,7 @@
 
 CC=gcc
 CFLAGS=-g -Wall
-FILES=Simulation.c
+FILES=Simulation.c types.c types.h common.h
 DERIV=${FILES:.c=.o}
 DEPEND=$(DERIV)
 

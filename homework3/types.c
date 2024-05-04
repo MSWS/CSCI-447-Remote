@@ -1,14 +1,7 @@
 #include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct {
-  int id;
-  int priority;
-  int arrivalTime;
-  int ioInstructions[MAX_INSTRUCT];
-  int exeInstructions[MAX_INSTRUCT];
-} Process;
+#include "types.h"
 
 Process* parseProcess(FILE* fp) {
   Process* result = (Process*) malloc(sizeof(Process));
