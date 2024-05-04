@@ -40,6 +40,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   while((tmp = parseProcess(fp)) != NULL) {
     printf("Process ID %d\n", tmp->id);
     printf("Process Priority %d\n", tmp->priority);
+    printf("Process Arrival Time %d\n", tmp->arrivalTime);
     sleep(1);
   }
 
