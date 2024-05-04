@@ -21,6 +21,7 @@
 Queue *queueA;
 Queue *queueB;
 int quantumA, quantumB, preemption;
+int processCount = 0, instructions = 0;
 FILE *fp;
 
 bool switchProcess(Queue *queue, int time);
@@ -47,16 +48,15 @@ bool tickQueue(Queue *queue, int tick) {
     switchProcess(queue, tick);
   }
 
-  if (!used) {
+  if (!used)
     switchProcess(queue, tick);
-  }
 
   if (queue->processes[queue->currentProcess]->terminated)
     return false;
 
   if (used) {
     current->fastTicks = 0;
-  } else {
+  } else if (current->cpuTicks > 0) {
     current->fastTicks++;
   }
 
@@ -64,12 +64,6 @@ bool tickQueue(Queue *queue, int tick) {
 }
 
 void Simulate(int quantumA, int quantumB, int preEmp) {
-  // A function whose input is the quanta for queues A and B,
-  // well as whether preemption is enabled.
-  printf("Quantum A val received : %d\n", quantumA);
-  printf("Quantum B val received : %d\n", quantumB);
-  printf("preEmpt val received   : %d\n", preEmp);
-
   queueA = initializeQueue();
   queueB = initializeQueue();
 
@@ -83,6 +77,8 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
 
   while ((tmp = parseProcess(fp)) != NULL) {
     addProcessToQueue(queueB, tmp);
+    processCount++;
+    instructions += tmp->instructionCount + 1; // +1 for termination
   }
 
   fclose(fp);
@@ -90,7 +86,6 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   int tick = -1;
   while (true) {
     tick++;
-    printf("BEGIN TICK %d\n", tick);
     usleep(1000 * 50);
     if (tickQueue(queueA, tick)) {
       printf("A ");
@@ -105,11 +100,14 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
     printf("B ");
 
     if (!previousProcess->terminated &&previousProcess->fastTicks == 3) {
-      printf("PROMOTING %d TO A QUEUE\n", previousProcess->id);
       addProcessToQueue(queueA, previousProcess);
       queueB->processes[previousIndex] = NULL;
     }
   }
+
+  printf("Start Time: 0, End Time: %d\n", tick);
+  printf("Processes Completed: %d\n", processCount);
+  printf("Instructions Completed: %d\n", instructions);
 }
 
 bool switchProcess(Queue *queue, int time) {

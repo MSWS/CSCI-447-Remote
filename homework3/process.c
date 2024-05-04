@@ -22,6 +22,7 @@ Process *parseProcess(FILE *fp) {
   result->cpuTicks = 0;
   result->ioTicks = 0;
   result->terminated = false;
+  result->readyTime = 0;
 
   for (int i = 0; i < MAX_INSTRUCT; i++)
     result->instructions[i] = INIT_VALUE;
@@ -128,10 +129,6 @@ int getMinTCompletion(Process *self) {
 
 // Return true if we used CPU
 bool tickProcess(Process *self) {
-  if (self->ioTicks > 0) {
-    self->ioTicks--;
-  }
-
   if (self->instructions[self->currentInstruction] == 0) {
     // Finished previous instruction, simulate parsing next
     self->currentInstruction++;
@@ -142,6 +139,10 @@ bool tickProcess(Process *self) {
     return false;
   }
 
+  if (self->ioTicks > 0) {
+    self->ioTicks--;
+    return false;
+  }
   int time = self->instructions[self->currentInstruction];
   if (time < 0) {
     time = abs(time);
@@ -164,5 +165,5 @@ bool tickProcess(Process *self) {
 void debugProcess(Process *self) {
   printf("PID %d ID %d (%d)\n", self->id, self->currentInstruction,
          self->instructions[self->currentInstruction]);
-  printf("IO %d F %d\n", self->ioTicks, self->fastTicks);
+  printf("IO %d F %d CPU %d\n", self->ioTicks, self->fastTicks, self->cpuTicks);
 }

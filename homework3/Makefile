@@ -15,4 +15,4 @@ clean:
 	rm -f $(DERIV) Simulation
 
 test: all
-	./Simulation sampleFile.txt 1 2 3
+	./Simulation sampleFile.txt 7 3 0

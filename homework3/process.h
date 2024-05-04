@@ -14,6 +14,7 @@ typedef struct {
   int ioTicks;
   int cpuTicks;
   int fastTicks;
+  int readyTime;
   bool terminated;
 } Process;
 
