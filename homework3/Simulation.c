@@ -71,7 +71,10 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   queueB->quantum = quantumB;
 
   queueA->prioritize = false;
-  queueB->prioritize = preEmp != 0;
+  queueB->prioritize = true;
+
+  queueA->preempt = preEmp != 0;
+  queueB->preempt = preEmp != 0;
 
   Process *tmp;
 

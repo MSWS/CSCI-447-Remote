@@ -11,6 +11,7 @@ typedef struct {
   int maxProcessCount;
   int minTimeCompletion;
   bool prioritize;
+  bool preempt;
 } Queue;
 
 int addProcessToQueue(Queue *self, Process *process);

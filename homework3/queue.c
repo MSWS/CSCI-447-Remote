@@ -57,6 +57,7 @@ Queue *initializeQueue() {
   result->maxProcessCount = 0;
   result->minTimeCompletion = 0;
   result->prioritize = false;
+  result->preempt = false;
   return result;
 }
 #endif /* ifndef TYPES_IMPL */
