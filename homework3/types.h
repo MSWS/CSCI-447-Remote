@@ -1,6 +1,7 @@
-#ifndef TYPES
-#include "common.h"
+#ifndef TYPES_HEADER
+#define TYPES_HEADER
 #include <stdio.h>
+#include "common.h"
 
 typedef struct {
   int id;
@@ -11,4 +12,9 @@ typedef struct {
 } Process;
 
 Process* parseProcess(FILE* fp);
-#endif // !TYPES
+
+typedef struct {
+  int quantum;
+  Process processes[MAX_PROCESS];
+} Queue;
+#endif // !TYPES_HEADER

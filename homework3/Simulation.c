@@ -13,7 +13,7 @@
    file(s) you've written, using the #include directive. For example:
  */
 
-#include "types.c"
+#include "types.h"
 
 Queue* queueA;
 Queue* queueB;

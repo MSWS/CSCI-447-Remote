@@ -1,5 +1,5 @@
-#ifndef COMMON
-#define COMMON
+#ifndef MY_CUSTOM_COMMON_FOOBAR
+#define MY_CUSTOM_COMMON_FOOBAR
 
 #define MAX_PROCESS 500
 #define MAX_INSTRUCT 500

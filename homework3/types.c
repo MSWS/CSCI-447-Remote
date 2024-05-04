@@ -1,7 +1,6 @@
 #ifndef TYPES_IMPL
 #define TYPES_IMPL
 
-#include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
@@ -30,9 +29,5 @@ Process* parseProcess(FILE* fp) {
   return result;
 }
 
-typedef struct {
-  int quantum;
-  Process processes[MAX_PROCESS];
-} Queue;
 
 #endif /* ifndef TYPES_IMPL */
