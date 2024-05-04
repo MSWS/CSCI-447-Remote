@@ -23,7 +23,7 @@ Queue *queueB;
 int quantumA, quantumB, preemption;
 FILE *fp;
 
-bool tickQueue(Queue *queue, int time, bool endOfBurst);
+bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst);
 
 void Simulate(int quantumA, int quantumB, int preEmp) {
   queueA = initQueue();
@@ -46,32 +46,36 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   fclose(fp);
 
   int tick = 0;
-  int burstTicks = 0;
 
   while (true) {
-    printf("%d/%d\n", tick, burstTicks);
     Queue *currentQueue = queueA;
     if (isQueueDone(currentQueue))
       currentQueue = queueB;
-    if(isQueueDone(currentQueue))
+    if (isQueueDone(currentQueue))
       break;
-    bool endOfBurst = burstTicks == currentQueue->quantum - 1;
-    bool usedCPU = tickQueue(currentQueue, tick, endOfBurst);
-    if(usedCPU) {
-      burstTicks++;
+    printf("%d/%d\n", tick, currentQueue->burstTicks);
+    bool endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
+    bool usedCPU = tickQueue(currentQueue, queueA, tick, endOfBurst);
+    if (!usedCPU && currentQueue == queueA) {
+      currentQueue = queueB;
+      endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
+      usedCPU = tickQueue(queueB, queueA, tick, endOfBurst);
+    }
+    if (usedCPU) {
+      currentQueue->burstTicks++;
     } else {
-      burstTicks = 0;
+      currentQueue->burstTicks = 0;
     }
     if (endOfBurst)
-      burstTicks = 0;
+      currentQueue->burstTicks = 0;
     tick++;
-    usleep(1000 * 1500);
+    //    usleep(1000 * 1500);
   }
 
   printf("Simulation done in %d ticks\n", tick);
 }
 
-bool tickQueue(Queue *queue, int time, bool endOfBurst) {
+bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
   int currentPIndex = queue->currentProcess;
   printf("Process Index %d\n", currentPIndex);
   if (currentPIndex == INIT_VALUE) {
@@ -85,15 +89,39 @@ bool tickQueue(Queue *queue, int time, bool endOfBurst) {
     }
   }
 
+  if (queue->preempt) {
+    if (switchProcess(queue, time)) {
+      if (queue->currentProcess != currentPIndex)
+        printf("Pre-emption, switching to process %d (priority %d > %d)\n",
+               queue->currentProcess,
+               queue->processes[queue->currentProcess]->priority,
+               queue->processes[currentPIndex]->priority);
+    }
+    currentPIndex = queue->currentProcess;
+  }
+
   Process *currentProcess = queue->processes[currentPIndex];
   if (!readyForCPU(currentProcess, time)) {
     // If the current process isn't ready, change to the next one
+    if (currentProcess != NULL) {
+      currentProcess
+          ->fastTicks++; // Previously executed, so give credit for < quantum
+      if (promotion != NULL && promotion != queue &&
+          currentProcess->fastTicks > 3) {
+        printf("Promoting process %d to A queue\n", currentProcess->id);
+        addProcessToQueue(promotion, currentProcess);
+        queue->processes[currentPIndex] = NULL;
+        return false;
+      }
+    }
     currentPIndex = getNextProcess(queue, time);
     printf("Not ready for CPU, switching to process %d\n", currentPIndex);
-    if (currentPIndex == INIT_VALUE)
+    if (currentPIndex == INIT_VALUE) {
       // If no process is ready, return
+      // queue->currentProcess = currentPIndex;
       return false;
-    if(!readyForCPU(queue->processes[currentPIndex], time))
+    }
+    if (!readyForCPU(queue->processes[currentPIndex], time))
       return false;
   }
   currentProcess = queue->processes[currentPIndex];
@@ -102,13 +130,16 @@ bool tickQueue(Queue *queue, int time, bool endOfBurst) {
   if (!currentProcess->parsedCurrentInstruction) {
     printf("Parsing next instruction\n");
     currentProcess->parsedCurrentInstruction = true;
-    if(currentProcess->currentInstruction >= currentProcess->instructionCount) {
+    if (currentProcess->currentInstruction >=
+        currentProcess->instructionCount) {
       printf("Process %d is done\n", currentProcess->id);
       currentProcess->terminated = true;
-    }
-    if(currentProcess->instructions[currentProcess->currentInstruction] < 0) {
-      // IO is executed immediately after we parsed
-      tickProcess(currentProcess, time + 1);
+    } else {
+      if (currentProcess->instructions[currentProcess->currentInstruction] <
+          0) {
+        // IO is executed immediately after we parsed
+        tickProcess(currentProcess, time + 1);
+      }
     }
     return true;
   }
@@ -120,6 +151,7 @@ bool tickQueue(Queue *queue, int time, bool endOfBurst) {
     printf("End of burst, switching if available...\n");
     // If the process has finished its burst, change to the next one
     currentProcess->parsedCurrentInstruction = false;
+    currentProcess->fastTicks = 0;
     switchProcess(queue, time);
   }
   return true;

@@ -19,7 +19,6 @@ Process *init() {
   result->currentInstruction = 0;
   result->instructionCount = 0;
   result->fastTicks = 0;
-  result->cpuTicks = 0;
   result->ioCompleteTime = 0;
   result->readyTime = 0;
   result->terminated = false;

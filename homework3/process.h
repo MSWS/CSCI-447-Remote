@@ -13,7 +13,6 @@ typedef struct {
                           // instructionCount
   int currentInstruction; // Current instruction index
   int ioCompleteTime;            // IO ticks remaining
-  int cpuTicks;           // CPU ticks used
   int fastTicks;          // Ticks where process used < quantum
   int readyTime;          // Time process has spent in ready queue
   bool parsedCurrentInstruction; // Whether the current instruction has been

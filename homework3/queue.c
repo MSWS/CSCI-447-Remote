@@ -34,6 +34,7 @@ int getNextProcess(Queue *self, int time) {
 Queue *initQueue() {
   Queue *result = calloc(1, sizeof(Queue));
   result->quantum = 0;
+  result->burstTicks = 0;
   result->currentProcess = 0;
   result->maxProcessCount = 0;
   result->prioritize = false;
@@ -45,8 +46,9 @@ bool isQueueDone(Queue *self) {
   for (int i = 0; i < self->maxProcessCount; i++) {
     if (self->processes[i] == NULL)
       continue;
-    if (!self->processes[i]->terminated)
+    if (!self->processes[i]->terminated) {
       return false;
+    }
   }
   return true;
 }

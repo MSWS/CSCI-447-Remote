@@ -7,6 +7,7 @@
 
 typedef struct {
   int quantum;                     // Quantum for this queue
+  int burstTicks;
   Process *processes[MAX_PROCESS]; // Processes in this queue
   int currentProcess;              // Index of the current process
   int maxProcessCount;             // Number of processes in the queue
