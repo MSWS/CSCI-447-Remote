@@ -13,7 +13,6 @@
    file(s) you've written, using the #include directive. For example:
  */
 
-#include "common.h"
 #include "types.c"
 
 Queue* queueA;

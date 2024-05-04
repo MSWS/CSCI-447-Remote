@@ -3,12 +3,13 @@
 
 CC=gcc
 CFLAGS=-g -Wall
-FILES=Simulation.c types.c types.h common.h
+FILES=Simulation.c types.c
+HEADERS=${FILE:.c=.h}
 DERIV=${FILES:.c=.o}
 DEPEND=$(DERIV)
 
 all: Simulation
-Simulation: $(DEPEND)
+Simulation: $(DEPEND) $(HEADERS)
 	$(CC) -o Simulation $(CFLAGS) $(DERIV)
 
 clean:

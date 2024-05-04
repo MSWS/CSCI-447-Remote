@@ -1,6 +1,6 @@
-#include "common.h"
-
 #ifndef TYPES
+#include "common.h"
+#include <stdio.h>
 
 typedef struct {
   int id;
@@ -10,4 +10,5 @@ typedef struct {
   int exeInstructions[MAX_INSTRUCT];
 } Process;
 
+Process* parseProcess(FILE* fp);
 #endif // !TYPES
