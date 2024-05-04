@@ -4,10 +4,10 @@
  *  Last update : 08 February 2018
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include<unistd.h>
+#include <unistd.h>
 
 /* If there are custom classes/source files that you write, with
    custom functions, and you want those functions available for use in
@@ -15,12 +15,13 @@
    file(s) you've written, using the #include directive. For example:
  */
 
-#include "types.h"
+#include "process.h"
+#include "queue.h"
 
-Queue* queueA;
-Queue* queueB;
+Queue *queueA;
+Queue *queueB;
 int quantumA, quantumB, preemption;
-FILE* fp;
+FILE *fp;
 
 void Simulate(int quantumA, int quantumB, int preEmp) {
   // A function whose input is the quanta for queues A and B,
@@ -35,12 +36,13 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   queueA->quantum = quantumA;
   queueB->quantum = quantumB;
 
-  Process* tmp;
+  Process *tmp;
 
-  while((tmp = parseProcess(fp)) != NULL) {
+  while ((tmp = parseProcess(fp)) != NULL) {
     printf("Process ID %d\n", tmp->id);
     printf("Process Priority %d\n", tmp->priority);
     printf("Process Arrival Time %d\n", tmp->arrivalTime);
+    addProcessToQueue(queueB, tmp);
     sleep(1);
   }
 
@@ -48,16 +50,16 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
 }
 
 int main(int argc, char **argv) {
-  if(argc != 5) {
+  if (argc != 5) {
     printf("Incorrect num of arguments\n");
     return 1;
   }
-  quantumA = atoi(argv[2]); 
+  quantumA = atoi(argv[2]);
   quantumB = atoi(argv[3]);
   preemption = atoi(argv[4]);
 
   fp = fopen(argv[1], "rt");
-  if(fp == NULL) {
+  if (fp == NULL) {
     perror("Invalid file");
     return 1;
   }
@@ -66,4 +68,3 @@ int main(int argc, char **argv) {
   Simulate(quantumA, quantumB, preemption);
   return 0;
 }
-
