@@ -14,7 +14,7 @@ int getNextProcess(Queue *self, int time) {
   if (self->prioritize) {
     int highestPriority = 0;
     int highestIndex = -1;
-    for (int i = 1; i <= self->maxProcessCount; i++) {
+    for (int i = 1; i < self->maxProcessCount; i++) {
       int index = (i + current) % self->maxProcessCount;
       Process *p = self->processes[index];
       if (p == NULL) // Promoted or otherwise no longer in queue
@@ -31,7 +31,7 @@ int getNextProcess(Queue *self, int time) {
     return highestIndex;
   }
 
-  for (int i = 1; i <= self->maxProcessCount; i++) {
+  for (int i = 1; i < self->maxProcessCount; i++) {
     int index = (i + current) % self->maxProcessCount;
     Process *p = self->processes[index];
     if (p == NULL)
@@ -45,17 +45,11 @@ int getNextProcess(Queue *self, int time) {
   return -1;
 }
 
-int getMinQCompletion(Queue *self) {
-  Process *last = self->processes[self->maxProcessCount - 1];
-  return getMinTCompletion(last) + last->arrivalTime;
-}
-
-Queue *initializeQueue() {
+Queue *initQueue() {
   Queue *result = calloc(1, sizeof(Queue));
   result->quantum = 0;
   result->currentProcess = 0;
   result->maxProcessCount = 0;
-  result->minTimeCompletion = 0;
   result->prioritize = false;
   result->preempt = false;
   return result;

@@ -4,14 +4,14 @@
 #include "process.h"
 #include <stdbool.h>
 #include <stdio.h>
+
 typedef struct {
-  int quantum;
-  Process *processes[MAX_PROCESS];
-  int currentProcess;
-  int maxProcessCount;
-  int minTimeCompletion;
-  bool prioritize;
-  bool preempt;
+  int quantum;                     // Quantum for this queue
+  Process *processes[MAX_PROCESS]; // Processes in this queue
+  int currentProcess;              // Index of the current process
+  int maxProcessCount;             // Number of processes in the queue
+  bool prioritize;                 // Whether to prioritize processes
+  bool preempt;                    // Whether to preempt processes
 } Queue;
 
 int addProcessToQueue(Queue *self, Process *process);
@@ -20,11 +20,10 @@ int addProcessToQueue(Queue *self, Process *process);
  * Gets the next process that the queue should execute,
  * assuming its current process has finished.
  *
- * May return NULL if there are no processes remaining,
- * OR if the next process (and thus all remaining processes)
- * have not yet arrived at the given time.
+ * Returns -1 if no process is available. (Either
+ * because none are ready, or because they haven't
+ * arrived yet.)
  */
 int getNextProcess(Queue *self, int time);
-int getMinQCompletion(Queue* self);
-Queue *initializeQueue();
+Queue *initQueue();
 #endif // !TYPES_QUEUE
