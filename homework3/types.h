@@ -15,6 +15,10 @@ Process* parseProcess(FILE* fp);
 
 typedef struct {
   int quantum;
-  Process processes[MAX_PROCESS];
+  Process* processes[MAX_PROCESS];
+  int currentProcess;
+  int processCount;
 } Queue;
+
+int addToQueue(Queue* self, Process* process);
 #endif // !TYPES_HEADER

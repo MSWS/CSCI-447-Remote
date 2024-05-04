@@ -14,3 +14,5 @@ Simulation: $(DEPEND)
 clean:
 	rm -f $(DERIV) Simulation
 
+test: all
+	./Simulation sampleFile.txt 1 2 3
