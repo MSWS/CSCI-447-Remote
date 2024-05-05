@@ -42,11 +42,61 @@ Queue *initQueue() {
   return result;
 }
 
+void incrementReadyTime(Queue *self) {
+  for (int i = 0; i < self->maxProcessCount; i++) {
+    if (i == self->currentProcess)
+      continue;
+    if (self->processes[i] == NULL)
+      continue;
+    if (self->processes[i]->terminatedTime != 0)
+      continue;
+    self->processes[i]->readyTime++;
+  }
+}
+
+int getTotalReadyTime(Queue *self) {
+  int total = 0;
+  for (int i = 0; i < self->maxProcessCount; i++) {
+    if (self->processes[i] == NULL)
+      continue;
+    if (self->processes[i]->terminatedTime == 0)
+      fprintf(stderr, "Process %d is not terminated\n", i);
+    total += self->processes[i]->readyTime;
+  }
+  return total;
+}
+
+int getMinReadyTime(Queue *self) {
+  int min = -1;
+  for (int i = 0; i < self->maxProcessCount; i++) {
+    if (self->processes[i] == NULL)
+      continue;
+    if (self->processes[i]->terminatedTime == 0)
+      fprintf(stderr, "Process %d is not terminated\n", i);
+    if (min == -1 || self->processes[i]->readyTime < min)
+      min = self->processes[i]->readyTime;
+  }
+  return min;
+}
+
+int getMaxReadyTime(Queue *self) {
+  int max = 0;
+  for (int i = 0; i < self->maxProcessCount; i++) {
+    if (self->processes[i] == NULL)
+      continue;
+    if (self->processes[i]->terminatedTime == 0)
+      fprintf(stderr, "Process %d is not terminated\n", i);
+    if (self->processes[i]->readyTime > max)
+      max = self->processes[i]->readyTime;
+  }
+  return max;
+}
+
 bool isQueueDone(Queue *self) {
   for (int i = 0; i < self->maxProcessCount; i++) {
     if (self->processes[i] == NULL)
       continue;
-    if (!self->processes[i]->terminated) {
+    if (self->processes[i]->terminatedTime == 0) {
       return false;
     }
   }

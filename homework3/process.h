@@ -12,13 +12,15 @@ typedef struct {
   int instructionSize;    // Size of instructions array, should always be >=
                           // instructionCount
   int currentInstruction; // Current instruction index
-  int ioCompleteTime;            // IO ticks remaining
+  int ioCompleteTime;     // IO ticks remaining
   int fastTicks;          // Ticks where process used < quantum
   int readyTime;          // Time process has spent in ready queue
   bool parsedCurrentInstruction; // Whether the current instruction has been
                                  // parsed
-  bool terminated;               // Process has terminated
-  int *instructions;            // Time each instruction takes, - for IO
+  // bool terminated;               // Process has terminated
+  int terminatedTime; // Time process terminated, - if terminated in Q A, + for
+                      // A, and 0 if not terminated
+  int *instructions;  // Time each instruction takes, - for IO
 } Process;
 
 Process *parseProcess(FILE *fp);

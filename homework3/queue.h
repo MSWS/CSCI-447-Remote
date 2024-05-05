@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 typedef struct {
-  int quantum;                     // Quantum for this queue
+  int quantum; // Quantum for this queue
   int burstTicks;
   Process *processes[MAX_PROCESS]; // Processes in this queue
   int currentProcess;              // Index of the current process
@@ -34,6 +34,13 @@ bool switchProcess(Queue *self, int time);
  * of its processes.
  */
 bool isQueueDone(Queue *self);
+
+void incrementReadyTime(Queue *self);
+
+int getTotalReadyTime(Queue *self);
+
+int getMinReadyTime(Queue *self);
+int getMaxReadyTime(Queue *self);
 
 Queue *initQueue();
 #endif // !TYPES_QUEUE

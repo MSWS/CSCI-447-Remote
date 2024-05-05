@@ -21,7 +21,12 @@
 Queue *queueA;
 Queue *queueB;
 int quantumA, quantumB, preemption;
+int instructionCount = 0;
+int processCount = 0;
 FILE *fp;
+
+Process *terminated;
+int terminatedCount = 0;
 
 bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst);
 
@@ -42,8 +47,12 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
 
   while ((tmp = parseProcess(fp)) != NULL) {
     addProcessToQueue(queueB, tmp);
+    processCount++;
+    instructionCount += tmp->instructionCount + 1; // +1 for termination
   }
   fclose(fp);
+
+  terminated = calloc(sizeof(Process), processCount);
 
   int tick = 0;
 
@@ -69,10 +78,38 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
     if (endOfBurst)
       currentQueue->burstTicks = 0;
     tick++;
-    //    usleep(1000 * 1500);
+    // usleep(1000 * 1500);
   }
 
-  printf("Simulation done in %d ticks\n", tick);
+  printf("Start/end time: %d, %d\n", 0, tick);
+  printf("Processes Completed: %d\n", processCount);
+  printf("Instructions Completed: %d\n", instructionCount);
+  int totalTime = getTotalReadyTime(queueA) + getTotalReadyTime(queueB);
+  int minATime = getMinReadyTime(queueA), maxATime = getMaxReadyTime(queueA);
+  int minBTime = getMinReadyTime(queueB), maxBTime = getMaxReadyTime(queueB);
+  int minTime = 0, maxTime = 0;
+  if (minATime == -1)
+    minTime = minBTime;
+  else if (minBTime == -1)
+    minTime = minATime;
+  else
+    minTime = minATime < minBTime ? minATime : minBTime;
+
+  if (maxATime == -1)
+    maxTime = maxBTime;
+  else if (maxBTime == -1)
+    maxTime = maxATime;
+  else
+    maxTime = maxATime > maxBTime ? maxATime : maxBTime;
+  printf("Ready time average: %f\n", (float)totalTime / (processCount));
+  printf("Min ready time: %d\n", minTime);
+  printf("Max ready time: %d\n", maxTime);
+
+  for (int i = 0; i < terminatedCount; i++) {
+    Process p = terminated[i];
+    printf("P%d time_completion:%d time_waiting:%d termination_queue:%s\n", p.id,
+           p.terminatedTime, p.readyTime, p.terminatedTime < 0 ? "A" : "B");
+  }
 }
 
 bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
@@ -118,7 +155,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     printf("Not ready for CPU, switching to process %d\n", currentPIndex);
     if (currentPIndex == INIT_VALUE) {
       // If no process is ready, return
-      // queue->currentProcess = currentPIndex;
+      queue->currentProcess = currentPIndex;
       return false;
     }
     if (!readyForCPU(queue->processes[currentPIndex], time))
@@ -133,7 +170,11 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     if (currentProcess->currentInstruction >=
         currentProcess->instructionCount) {
       printf("Process %d is done\n", currentProcess->id);
-      currentProcess->terminated = true;
+      if (promotion == queue || promotion == NULL)
+        currentProcess->terminatedTime = -time; // Queue A
+      else
+        currentProcess->terminatedTime = time; // Queue B
+      terminated[terminatedCount++] = *currentProcess;
     } else {
       if (currentProcess->instructions[currentProcess->currentInstruction] <
           0) {
@@ -141,11 +182,12 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
         tickProcess(currentProcess, time + 1);
       }
     }
-    return true;
+  } else {
+    printf("Executing process %d\n", currentProcess->id);
+    tickProcess(currentProcess, time);
   }
 
-  printf("Executing process %d\n", currentProcess->id);
-  tickProcess(currentProcess, time);
+  incrementReadyTime(queue);
 
   if (endOfBurst) {
     printf("End of burst, switching if available...\n");

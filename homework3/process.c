@@ -21,7 +21,8 @@ Process *init() {
   result->fastTicks = 0;
   result->ioCompleteTime = 0;
   result->readyTime = 0;
-  result->terminated = false;
+  result->terminatedTime = 0;
+  // result->terminated = false;
   result->instructionSize = 10;
   // Initialize instructions array to 10
   int *array = (int *)calloc(result->instructionSize, sizeof(int));
@@ -141,7 +142,7 @@ void tickProcess(Process *self, int time) {
   printf("Executing instruction %d\n", self->currentInstruction);
   if (self->currentInstruction >= self->instructionCount) {
     // OS should already have detected this
-    self->terminated = true;
+    self->terminatedTime = time;
     fprintf(stderr, "Process %d terminated\n", self->id);
   }
   int instTime = self->instructions[self->currentInstruction];
@@ -168,7 +169,7 @@ void tickProcess(Process *self, int time) {
 }
 
 bool readyForCPU(Process *self, int time) {
-  if (self == NULL || self->terminated)
+  if (self == NULL || self->terminatedTime != 0)
     return false;
   if (time < self->arrivalTime)
     return false;
