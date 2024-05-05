@@ -1,0 +1,40 @@
+I created a large file with 20 processes, each with a few hundred instructions
+ranging from 5 - 200 time units. The resulting data is below; In this table, I
+see that the "fastest" way to complete all processes was to have a long
+quantum time with pre-emption. This makes sense, as the less frequently
+we force processes to switch, the faster we can get all processes to complete.
+
+Somewhat confusingly it appears the Ready Time Average was relatively low for
+such a high quantum time. I would have expected the Ready Time Average to be
+higher for a high quantum time, as processes would have to wait longer to be
+scheduled.
+
+Pre-emption in general seems to increase the ready time average, but decrease
+the completion time. This makes sense, as pre-emption allows us to switch
+processes more frequently, which can help us avoid long wait times for
+processes that are ready to run.
+
+Qa,Qb,End,Ready Avg,Min,Max,No Pre-emption
+50,100,13417,2893,122,7121,
+50,50,13483,1803,72,7137,
+50,25,13589,2937,47,7264,
+50,5,14824,3409,141,8495,
+100,50,13626,2805,72,7129,
+25,50,13496,2806,72,7154,
+5,50,13852,2862,72,7329,
+7,3,16728,4075,162,10094,
+3,3,17443,4142,162,10291,
+2,2,22028,5358,252,12671,
+500,500,13627,3617,522,6896,
+,,,,,,
+50,100,13194,5056,838,9445,Pre-emption
+50,50,13276,5108,950,9526,
+50,25,13579,5189,964,9868,
+50,5,15244,5964,1409,11096,
+100,50,13276,5107,950,9518,
+25,50,13276,5110,950,9541,
+5,50,13280,5125,950,9687,
+7,3,17367,6975,1880,13299,
+3,3,17373,6986,1880,13404,
+2,2,22262,8980,2212,18173,
+500,500,13117,5013,779,9407,
