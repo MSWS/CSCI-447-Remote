@@ -172,10 +172,12 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     if (currentProcess->currentInstruction >=
         currentProcess->instructionCount) {
       debug("Process %d is done\n", currentProcess->id);
+      // Offset by one since technically the process isn't
+      // terminated until the next tick
       if (promotion == queue || promotion == NULL)
-        currentProcess->terminatedTime = -time; // Queue A
+        currentProcess->terminatedTime = -time - 1; // Queue A
       else
-        currentProcess->terminatedTime = time; // Queue B
+        currentProcess->terminatedTime = time + 1; // Queue B
       terminated[terminatedCount++] = *currentProcess;
     } else {
       if (currentProcess->instructions[currentProcess->currentInstruction] <
@@ -189,7 +191,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     tickProcess(currentProcess, time);
   }
 
-  incrementReadyTime(queue);
+  incrementReadyTime(queue, time);
 
   if (endOfBurst) {
     debug("End of burst, switching if available...\n");
@@ -203,7 +205,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
 
 int main(int argc, char **argv) {
   if (argc != 5) {
-    debug("Incorrect num of arguments\n");
+    printf("Incorrect num of arguments\n");
     return 1;
   }
   quantumA = atoi(argv[2]);

@@ -59,7 +59,7 @@ Queue *initQueue() {
   return result;
 }
 
-void incrementReadyTime(Queue *self) {
+void incrementReadyTime(Queue *self, int time) {
   for (int i = 0; i < self->maxProcessCount; i++) {
     if (i == self->currentProcess)
       continue;
@@ -67,6 +67,8 @@ void incrementReadyTime(Queue *self) {
       continue;
     if (self->processes[i]->terminatedTime != 0)
       continue;
+    if(!readyForCPU(self->processes[i], time))
+      continue; 
     self->processes[i]->readyTime++;
   }
 }

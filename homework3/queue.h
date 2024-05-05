@@ -36,7 +36,7 @@ bool switchProcess(Queue *self, int time);
  */
 bool isQueueDone(Queue *self);
 
-void incrementReadyTime(Queue *self);
+void incrementReadyTime(Queue *self, int time);
 
 int getTotalReadyTime(Queue *self);
 
