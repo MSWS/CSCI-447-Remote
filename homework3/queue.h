@@ -8,11 +8,12 @@
 typedef struct {
   int quantum; // Quantum for this queue
   int burstTicks;
-  Process *processes[MAX_PROCESS]; // Processes in this queue
-  int currentProcess;              // Index of the current process
-  int maxProcessCount;             // Number of processes in the queue
-  bool prioritize;                 // Whether to prioritize processes
-  bool preempt;                    // Whether to preempt processes
+  int currentProcess;  // Index of the current process
+  int maxProcessCount; // Number of processes in the queue
+  bool prioritize;     // Whether to prioritize processes
+  bool preempt;        // Whether to preempt processes
+  int processArraySize;
+  Process **processes;  // Processes in this queue
 } Queue;
 
 int addProcessToQueue(Queue *self, Process *process);

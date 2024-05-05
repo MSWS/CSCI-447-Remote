@@ -3,7 +3,7 @@
 
 CC=gcc
 CFLAGS=-g -Wall
-FILES=Simulation.c process.c queue.c
+FILES=Simulation.c process.c queue.c common.c
 DERIV=${FILES:.c=.o}
 DEPEND=$(DERIV)
 

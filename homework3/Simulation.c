@@ -4,6 +4,7 @@
  *  Last update : 08 February 2018
  */
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +63,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
       currentQueue = queueB;
     if (isQueueDone(currentQueue))
       break;
-    printf("%d/%d\n", tick, currentQueue->burstTicks);
+    debug("%d/%d\n", tick, currentQueue->burstTicks);
     bool endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
     bool usedCPU = tickQueue(currentQueue, queueA, tick, endOfBurst);
     if (!usedCPU && currentQueue == queueA) {
@@ -107,21 +108,22 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
 
   for (int i = 0; i < terminatedCount; i++) {
     Process p = terminated[i];
-    printf("P%d time_completion:%d time_waiting:%d termination_queue:%s\n", p.id,
-           abs(p.terminatedTime), p.readyTime, p.terminatedTime < 0 ? "A" : "B");
+    printf("P%d time_completion:%d time_waiting:%d termination_queue:%s\n",
+           p.id, abs(p.terminatedTime), p.readyTime,
+           p.terminatedTime < 0 ? "A" : "B");
   }
 }
 
 bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
   int currentPIndex = queue->currentProcess;
-  printf("Process Index %d\n", currentPIndex);
+  debug("Process Index %d\n", currentPIndex);
   if (currentPIndex == INIT_VALUE) {
-    printf("Queue just initialized\n");
+    debug("Queue just initialized\n");
     // Queue was just initialized, get the first process
     currentPIndex = getNextProcess(queue, time);
     if (currentPIndex == INIT_VALUE) {
       // If the first process hasn't arrived yet, return
-      printf("Idle...\n");
+      debug("Idle...\n");
       return false;
     }
   }
@@ -129,10 +131,10 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
   if (queue->preempt) {
     if (switchProcess(queue, time)) {
       if (queue->currentProcess != currentPIndex)
-        printf("Pre-emption, switching to process %d (priority %d > %d)\n",
-               queue->currentProcess,
-               queue->processes[queue->currentProcess]->priority,
-               queue->processes[currentPIndex]->priority);
+        debug("Pre-emption, switching to process %d (priority %d > %d)\n",
+              queue->currentProcess,
+              queue->processes[queue->currentProcess]->priority,
+              queue->processes[currentPIndex]->priority);
     }
     currentPIndex = queue->currentProcess;
   }
@@ -145,14 +147,14 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
           ->fastTicks++; // Previously executed, so give credit for < quantum
       if (promotion != NULL && promotion != queue &&
           currentProcess->fastTicks > 3) {
-        printf("Promoting process %d to A queue\n", currentProcess->id);
+        debug("Promoting process %d to A queue\n", currentProcess->id);
         addProcessToQueue(promotion, currentProcess);
         queue->processes[currentPIndex] = NULL;
         return false;
       }
     }
     currentPIndex = getNextProcess(queue, time);
-    printf("Not ready for CPU, switching to process %d\n", currentPIndex);
+    debug("Not ready for CPU, switching to process %d\n", currentPIndex);
     if (currentPIndex == INIT_VALUE) {
       // If no process is ready, return
       queue->currentProcess = currentPIndex;
@@ -165,11 +167,11 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
   queue->currentProcess = currentPIndex;
 
   if (!currentProcess->parsedCurrentInstruction) {
-    printf("Parsing next instruction\n");
+    debug("Parsing next instruction\n");
     currentProcess->parsedCurrentInstruction = true;
     if (currentProcess->currentInstruction >=
         currentProcess->instructionCount) {
-      printf("Process %d is done\n", currentProcess->id);
+      debug("Process %d is done\n", currentProcess->id);
       if (promotion == queue || promotion == NULL)
         currentProcess->terminatedTime = -time; // Queue A
       else
@@ -183,14 +185,14 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
       }
     }
   } else {
-    printf("Executing process %d\n", currentProcess->id);
+    debug("Executing process %d\n", currentProcess->id);
     tickProcess(currentProcess, time);
   }
 
   incrementReadyTime(queue);
 
   if (endOfBurst) {
-    printf("End of burst, switching if available...\n");
+    debug("End of burst, switching if available...\n");
     // If the process has finished its burst, change to the next one
     currentProcess->parsedCurrentInstruction = false;
     currentProcess->fastTicks = 0;
@@ -201,7 +203,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
 
 int main(int argc, char **argv) {
   if (argc != 5) {
-    printf("Incorrect num of arguments\n");
+    debug("Incorrect num of arguments\n");
     return 1;
   }
   quantumA = atoi(argv[2]);

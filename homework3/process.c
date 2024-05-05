@@ -122,7 +122,7 @@ void processInstruction(Process *result, char *line) {
 int addInstructionToProcess(Process *self, int time) {
   if (self->instructionCount >= self->instructionSize) {
     const int newSize = self->instructionCount * 2;
-    printf("Reallocating instructions to %d\n", newSize);
+    debug("Reallocating instructions to %d\n", newSize);
     int *newInstructions =
         (int *)realloc(self->instructions, newSize * sizeof(int));
     if (newInstructions == NULL) {
@@ -139,7 +139,7 @@ int addInstructionToProcess(Process *self, int time) {
 }
 
 void tickProcess(Process *self, int time) {
-  printf("Executing instruction %d\n", self->currentInstruction);
+  debug("Executing instruction %d\n", self->currentInstruction);
   if (self->currentInstruction >= self->instructionCount) {
     // OS should already have detected this
     self->terminatedTime = time;
@@ -147,7 +147,7 @@ void tickProcess(Process *self, int time) {
   }
   int instTime = self->instructions[self->currentInstruction];
   if (instTime < 0) {
-    printf("IO instruction\n");
+    debug("IO instruction\n");
     // IO instruction
     self->ioCompleteTime = time + abs(instTime);
     self->currentInstruction++;
@@ -156,11 +156,11 @@ void tickProcess(Process *self, int time) {
   }
 
   // CPU instruction
-  printf("CPU instruction\n");
+  debug("CPU instruction\n");
 
   self->instructions[self->currentInstruction] = --instTime;
 
-  printf("Instruction time: %d\n", instTime);
+  debug("Instruction time: %d\n", instTime);
 
   if (instTime == 0) {
     self->currentInstruction++;
@@ -171,10 +171,12 @@ void tickProcess(Process *self, int time) {
 bool readyForCPU(Process *self, int time) {
   if (self == NULL || self->terminatedTime != 0)
     return false;
+  if (self->id == INIT_VALUE)
+    return false;
   if (time < self->arrivalTime)
     return false;
   if (self->ioCompleteTime > time) {
-    printf("\t IO not complete until %d\n", self->ioCompleteTime);
+    debug("\t IO not complete until %d\n", self->ioCompleteTime);
     return false; // Still processing IO
   }
   return true;

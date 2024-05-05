@@ -4,6 +4,18 @@
 #include <stdlib.h>
 
 int addProcessToQueue(Queue *self, Process *process) {
+  if (self->maxProcessCount >= self->processArraySize) {
+    const int newSize = self->processArraySize * 2;
+    debug("Reallocating processes to %d\n", newSize);
+    Process **newProcesses =
+        (Process **)realloc(self->processes, newSize * sizeof(Process *));
+    if (newProcesses == NULL) {
+      fprintf(stderr, "Failed to realloc processes\n");
+      return self->maxProcessCount;
+    }
+    self->processArraySize = newSize;
+    self->processes = newProcesses;
+  }
   self->processes[self->maxProcessCount++] = process;
   return self->maxProcessCount;
 }
@@ -39,6 +51,11 @@ Queue *initQueue() {
   result->maxProcessCount = 0;
   result->prioritize = false;
   result->preempt = false;
+  result->processArraySize = 10;
+  result->processes = calloc(result->processArraySize, sizeof(Process *));
+  for (int i = 0; i < result->processArraySize; i++) {
+    result->processes[i] = NULL;
+  }
   return result;
 }
 
