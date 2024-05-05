@@ -108,7 +108,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   for (int i = 0; i < terminatedCount; i++) {
     Process p = terminated[i];
     printf("P%d time_completion:%d time_waiting:%d termination_queue:%s\n", p.id,
-           p.terminatedTime, p.readyTime, p.terminatedTime < 0 ? "A" : "B");
+           abs(p.terminatedTime), p.readyTime, p.terminatedTime < 0 ? "A" : "B");
   }
 }
 
