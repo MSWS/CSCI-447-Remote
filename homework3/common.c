@@ -1,7 +1,7 @@
 #include "common.h"
 #include <stdarg.h>
 #include <stdio.h>
-#define DEBUG
+// #define DEBUG
 void debug(const char *msg, ...) {
 #ifdef DEBUG
   va_list args;
