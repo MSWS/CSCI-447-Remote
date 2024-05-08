@@ -17,7 +17,6 @@ typedef struct {
   int readyTime;          // Time process has spent in ready queue
   bool parsedCurrentInstruction; // Whether the current instruction has been
                                  // parsed
-  // bool terminated;               // Process has terminated
   int terminatedTime; // Time process terminated, - if terminated in Q A, + for
                       // A, and 0 if not terminated
   int *instructions;  // Time each instruction takes, - for IO

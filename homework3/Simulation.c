@@ -24,6 +24,7 @@ Queue *queueB;
 int quantumA, quantumB, preemption;
 int instructionCount = 0;
 int processCount = 0;
+int startTick = 0;
 FILE *fp;
 
 Process *terminated;
@@ -72,6 +73,8 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
       usedCPU = tickQueue(queueB, queueA, tick, endOfBurst);
     }
     if (usedCPU) {
+      if (startTick == 0)
+        startTick = tick;
       currentQueue->burstTicks++;
     } else {
       currentQueue->burstTicks = 0;
@@ -82,7 +85,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
     // usleep(1000 * 1500);
   }
 
-  printf("Start/end time: %d, %d\n", 0, tick);
+  printf("Start/end time: %d, %d\n", startTick, tick);
   printf("Processes Completed: %d\n", processCount);
   printf("Instructions Completed: %d\n", instructionCount);
   int totalTime = getTotalReadyTime(queueA) + getTotalReadyTime(queueB);

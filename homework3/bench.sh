@@ -18,18 +18,16 @@ echo "A,B,PreExempt,End Time,Average Wait,Max Wait,Min Wait" >> $outputfile
 for A in "${values_A[@]}"; do
     for B in "${values_B[@]}"; do
         for PreExempt in "${values_PreExempt[@]}"; do
-            # Run the simulation
-            results=$($program $datafile $A $B $PreExempt)
-
-            # Extract relevant values using regular expressions
-            # end_time=$(echo "$results" | grep -oP 'Start/end time: \K\d+(?=,)')
+          echo "$datafile $A $B $PreExempt"
+        done
+    done
+done | xargs -n 4 -P 4 bash -c '
+            results=$($program $0 $1 $2 $3)
             end_time=$(echo "$results" | grep -oP 'Start/end time: \K\d+, \d+' | cut -d ',' -f2 | tr -d ' ')
             avg_wait=$(echo "$results" | grep -oP 'Ready time average: \K\d+\.\d+')
             max_wait=$(echo "$results" | grep -oP 'Max ready time: \K\d+')
             min_wait=$(echo "$results" | grep -oP 'Min ready time: \K\d+')
 
             echo "$A,$B,$PreExempt,$end_time,$avg_wait,$max_wait,$min_wait" >> $outputfile
+'
             # Write results to output file
-        done
-    done
-done

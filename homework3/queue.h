@@ -6,13 +6,13 @@
 #include <stdio.h>
 
 typedef struct {
-  int quantum; // Quantum for this queue
-  int burstTicks;
+  int quantum;         // Quantum for this queue
+  int burstTicks;      // Number of burst ticks the current process has executed
   int currentProcess;  // Index of the current process
   int maxProcessCount; // Number of processes in the queue
   bool prioritize;     // Whether to prioritize processes
   bool preempt;        // Whether to preempt processes
-  int processArraySize;
+  int processArraySize; // Size of the processes array
   Process **processes;  // Processes in this queue
 } Queue;
 
