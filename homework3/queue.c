@@ -124,9 +124,10 @@ bool isQueueDone(Queue *self) {
 
 bool switchProcess(Queue *self, int time) {
   int next = getNextProcess(self, time);
-  if (next == -1)
+  if (next == -1 || next == self->currentProcess)
     return false;
   self->currentProcess = next;
+  self->processes[next]->cpuTicks = 0;
   return true;
 }
 #endif /* ifndef TYPES_IMPL */

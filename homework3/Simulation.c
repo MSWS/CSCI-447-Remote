@@ -32,8 +32,7 @@ FILE *fp;
 Process *terminated;
 int terminatedCount = 0;
 
-enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
-                       bool endOfBurst);
+enum PResult tickQueue(Queue *queue, Queue *promotion, int time);
 
 void Simulate(int quantumA, int quantumB, int preEmp) {
   queueA = initQueue();
@@ -68,28 +67,13 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
     if (isQueueDone(currentQueue))
       break;
     debug("%d/%d\n", tick, currentQueue->burstTicks);
-    bool endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
-    enum PResult usedCPU = tickQueue(currentQueue, queueA, tick, endOfBurst);
+    enum PResult usedCPU = tickQueue(currentQueue, queueA, tick);
     if (usedCPU == IDLE && currentQueue == queueA) {
       currentQueue = queueB;
-      endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
-      usedCPU = tickQueue(queueB, queueA, tick, endOfBurst);
+      usedCPU = tickQueue(queueB, queueA, tick);
     }
-    switch (usedCPU) {
-    case IDLE:
-      currentQueue->burstTicks = 0;
-      break;
-    case ACTIVE:
-      if (startTick == 0)
-        startTick = tick;
-      currentQueue->burstTicks++;
-      break;
-    case NEW: // Pre-empted, give new process correct quantum
-      currentQueue->burstTicks = 1;
-      break;
-    }
-    if (endOfBurst)
-      currentQueue->burstTicks = 0;
+    if(usedCPU == ACTIVE && startTick == 0)
+      startTick = tick;
     tick++;
     // usleep(1000 * 1500);
   }
@@ -126,8 +110,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   }
 }
 
-enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
-                       bool endOfBurst) {
+enum PResult tickQueue(Queue *queue, Queue *promotion, int time) {
   int currentPIndex = queue->currentProcess;
   debug("Process Index %d\n", currentPIndex);
   if (currentPIndex == INIT_VALUE) {
@@ -153,7 +136,6 @@ enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
     }
     currentPIndex = queue->currentProcess;
     result = NEW;
-    endOfBurst = false;
   }
 
   Process *currentProcess = queue->processes[currentPIndex];
@@ -186,6 +168,7 @@ enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
   if (!currentProcess->parsedCurrentInstruction) {
     debug("Parsing next instruction\n");
     currentProcess->parsedCurrentInstruction = true;
+    currentProcess->cpuTicks = 1;
     if (currentProcess->currentInstruction >=
         currentProcess->instructionCount) {
       debug("Process %d is done\n", currentProcess->id);
@@ -210,13 +193,15 @@ enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
 
   incrementReadyTime(queue, time);
 
-  if (endOfBurst) {
+  if (currentProcess->cpuTicks >= queue->quantum)  {
     debug("End of burst, switching if available...\n");
     // If the process has finished its burst, change to the next one
     currentProcess->parsedCurrentInstruction = false;
     currentProcess->fastTicks = 0;
+    currentProcess->cpuTicks = 0;
     switchProcess(queue, time);
   }
+  
   return result;
 }
 

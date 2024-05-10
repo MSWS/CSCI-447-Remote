@@ -21,7 +21,7 @@ test_faq: all
 	./Simulation tests/faq_promotion.txt 5 10 0 > unit.txt
 	diff tests/faq_promotion_exp.txt unit.txt
 	./Simulation tests/faq_promotion.txt 5 10 1 > unit.txt
-	diff tests/faq_promotion_exp.txt unit.txt
+	diff tests/faq_promotion_exp_pre.txt unit.txt
 test_homework: all
 	./Simulation tests/homework.txt 7 3 0 > unit.txt
 	diff tests/homework_exp.txt unit.txt

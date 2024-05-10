@@ -17,6 +17,7 @@ Process *init() {
   result->priority = INIT_VALUE;
   result->arrivalTime = INIT_VALUE;
   result->currentInstruction = 0;
+  result->cpuTicks = 0;
   result->instructionCount = 0;
   result->fastTicks = 0;
   result->ioCompleteTime = 0;
@@ -24,6 +25,7 @@ Process *init() {
   result->terminatedTime = 0;
   // result->terminated = false;
   result->instructionSize = 10;
+  result->parsedCurrentInstruction = false;
   // Initialize instructions array to 10
   int *array = (int *)calloc(result->instructionSize, sizeof(int));
   result->instructions = array;
@@ -166,6 +168,8 @@ void tickProcess(Process *self, int time) {
     self->currentInstruction++;
     self->parsedCurrentInstruction = false;
   }
+
+  self->cpuTicks++;
 }
 
 bool readyForCPU(Process *self, int time) {

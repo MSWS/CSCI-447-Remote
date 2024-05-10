@@ -11,6 +11,7 @@ typedef struct {
   int instructionCount;   // Number of instructions
   int instructionSize;    // Size of instructions array, should always be >=
                           // instructionCount
+  int cpuTicks;           // Ticks process has used CPU
   int currentInstruction; // Current instruction index
   int ioCompleteTime;     // IO ticks remaining
   int fastTicks;          // Ticks where process used < quantum
