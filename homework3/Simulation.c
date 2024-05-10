@@ -19,6 +19,8 @@
 #include "process.h"
 #include "queue.h"
 
+enum PResult { IDLE, ACTIVE, NEW };
+
 Queue *queueA;
 Queue *queueB;
 int quantumA, quantumB, preemption;
@@ -30,7 +32,8 @@ FILE *fp;
 Process *terminated;
 int terminatedCount = 0;
 
-bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst);
+enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
+                       bool endOfBurst);
 
 void Simulate(int quantumA, int quantumB, int preEmp) {
   queueA = initQueue();
@@ -66,18 +69,24 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
       break;
     debug("%d/%d\n", tick, currentQueue->burstTicks);
     bool endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
-    bool usedCPU = tickQueue(currentQueue, queueA, tick, endOfBurst);
-    if (!usedCPU && currentQueue == queueA) {
+    enum PResult usedCPU = tickQueue(currentQueue, queueA, tick, endOfBurst);
+    if (usedCPU == IDLE && currentQueue == queueA) {
       currentQueue = queueB;
       endOfBurst = currentQueue->burstTicks == currentQueue->quantum - 1;
       usedCPU = tickQueue(queueB, queueA, tick, endOfBurst);
     }
-    if (usedCPU) {
+    switch (usedCPU) {
+    case IDLE:
+      currentQueue->burstTicks = 0;
+      break;
+    case ACTIVE:
       if (startTick == 0)
         startTick = tick;
       currentQueue->burstTicks++;
-    } else {
-      currentQueue->burstTicks = 0;
+      break;
+    case NEW: // Pre-empted, give new process correct quantum
+      currentQueue->burstTicks = 1;
+      break;
     }
     if (endOfBurst)
       currentQueue->burstTicks = 0;
@@ -117,7 +126,8 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   }
 }
 
-bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
+enum PResult tickQueue(Queue *queue, Queue *promotion, int time,
+                       bool endOfBurst) {
   int currentPIndex = queue->currentProcess;
   debug("Process Index %d\n", currentPIndex);
   if (currentPIndex == INIT_VALUE) {
@@ -127,9 +137,11 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     if (currentPIndex == INIT_VALUE) {
       // If the first process hasn't arrived yet, return
       debug("Idle...\n");
-      return false;
+      return IDLE;
     }
   }
+
+  enum PResult result = ACTIVE;
 
   if (queue->preempt) {
     if (switchProcess(queue, time)) {
@@ -140,6 +152,8 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
               queue->processes[currentPIndex]->priority);
     }
     currentPIndex = queue->currentProcess;
+    result = NEW;
+    endOfBurst = false;
   }
 
   Process *currentProcess = queue->processes[currentPIndex];
@@ -153,7 +167,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
         debug("Promoting process %d to A queue\n", currentProcess->id);
         addProcessToQueue(promotion, currentProcess);
         queue->processes[currentPIndex] = NULL;
-        return false;
+        return IDLE;
       }
     }
     currentPIndex = getNextProcess(queue, time);
@@ -161,10 +175,10 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     if (currentPIndex == INIT_VALUE) {
       // If no process is ready, return
       queue->currentProcess = currentPIndex;
-      return false;
+      return IDLE;
     }
     if (!readyForCPU(queue->processes[currentPIndex], time))
-      return false;
+      return IDLE;
   }
   currentProcess = queue->processes[currentPIndex];
   queue->currentProcess = currentPIndex;
@@ -203,7 +217,7 @@ bool tickQueue(Queue *queue, Queue *promotion, int time, bool endOfBurst) {
     currentProcess->fastTicks = 0;
     switchProcess(queue, time);
   }
-  return true;
+  return result;
 }
 
 int main(int argc, char **argv) {

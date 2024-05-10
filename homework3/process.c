@@ -92,7 +92,7 @@ void processArrival(Process *result, char *line) {
   // Parsed ID and Priority, next line is arrival time
   const int prefixLength = strlen("arrival t:");
   if (strlen(line) < prefixLength ||
-      strncmp(line, "arrival t:", prefixLength) != 0) {
+      strncmp(line, "arrival_t:", prefixLength) != 0) {
     fprintf(stderr, "Expected process arrival time, got %s\n", line);
     return;
   }
