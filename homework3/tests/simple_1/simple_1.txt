@@ -1,0 +1,8 @@
+P1:1
+arrival_t:2
+exe:3
+terminate
+P2:2
+arrival_t:4
+exe:2
+terminate

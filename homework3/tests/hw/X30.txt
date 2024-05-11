@@ -1,0 +1,8 @@
+Start/end time: 1, 24
+Processes Completed: 2
+Instructions Completed: 7
+Ready time average: 4.000000
+Min ready time: 2
+Max ready time: 6
+P456 time_completion:15 time_waiting:6 termination_queue:B
+P1700 time_completion:24 time_waiting:2 termination_queue:B
