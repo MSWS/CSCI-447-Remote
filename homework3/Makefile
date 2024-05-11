@@ -14,7 +14,7 @@ Simulation: $(DEPEND)
 clean:
 	rm -f $(DERIV) Simulation
 
-test: test_simple test_hw
+test: test_simple test_hw test_preempt
 	rm unit.txt
 
 test_hw: all
@@ -33,3 +33,8 @@ test_simple: all
 	./Simulation tests/simple_1/simple_1.txt 0 5 1 > unit.txt
 	diff tests/simple_1/X51.txt unit.txt
 
+test_preempt: all
+	./Simulation tests/preempt/preempt.txt 0 5 1 > unit.txt
+	diff tests/preempt/X51.txt unit.txt
+	./Simulation tests/preempt/preempt.txt 0 5 0 > unit.txt
+	diff tests/preempt/X50.txt unit.txt
