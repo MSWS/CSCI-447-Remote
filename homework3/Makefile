@@ -14,7 +14,7 @@ Simulation: $(DEPEND)
 clean:
 	rm -f $(DERIV) Simulation
 
-test: test_simple
+test: test_simple test_hw
 	rm unit.txt
 
 test_hw: all
