@@ -72,7 +72,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
       currentQueue = queueB;
       usedCPU = tickQueue(queueB, queueA, tick);
     }
-    if(usedCPU == ACTIVE && startTick == 0)
+    if((usedCPU == ACTIVE || usedCPU == NEW) && startTick == 0)
       startTick = tick;
     tick++;
     // usleep(1000 * 1500);
@@ -128,14 +128,16 @@ enum PResult tickQueue(Queue *queue, Queue *promotion, int time) {
 
   if (queue->preempt) {
     if (switchProcess(queue, time)) {
-      if (queue->currentProcess != currentPIndex)
-        debug("Pre-emption, switching to process %d (priority %d > %d)\n",
+      debug("Pre-emption, switching to process %d (priority %d > %d)\n",
               queue->currentProcess,
               queue->processes[queue->currentProcess]->priority,
               queue->processes[currentPIndex]->priority);
+      queue->processes[currentPIndex]->parsedCurrentInstruction = false;
+      queue->processes[currentPIndex]->cpuTicks = 0;
+      queue->processes[currentPIndex]->fastTicks++;
+      result = NEW;
     }
     currentPIndex = queue->currentProcess;
-    result = NEW;
   }
 
   Process *currentProcess = queue->processes[currentPIndex];
