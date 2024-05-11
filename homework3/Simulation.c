@@ -44,7 +44,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
   queueA->prioritize = false;
   queueB->prioritize = true;
 
-  queueA->preempt = preEmp != 0;
+  queueA->preempt = false;
   queueB->preempt = preEmp != 0;
 
   Process *tmp;
@@ -113,7 +113,7 @@ void Simulate(int quantumA, int quantumB, int preEmp) {
 enum PResult tickQueue(Queue *queue, Queue *promotion, int time) {
   int currentPIndex = queue->currentProcess;
   debug("Process Index %d\n", currentPIndex);
-  if (currentPIndex == INIT_VALUE) {
+  if (currentPIndex == INIT_VALUE || queue->processes[currentPIndex] == NULL) {
     debug("Queue just initialized\n");
     // Queue was just initialized, get the first process
     currentPIndex = getNextProcess(queue, time);
@@ -128,10 +128,13 @@ enum PResult tickQueue(Queue *queue, Queue *promotion, int time) {
 
   if (queue->preempt) {
     if (switchProcess(queue, time)) {
-      debug("Pre-emption, switching to process %d (priority %d > %d)\n",
-              queue->currentProcess,
-              queue->processes[queue->currentProcess]->priority,
-              queue->processes[currentPIndex]->priority);
+      // debug("Pre-emption, switching to process %d (priority %d > %d)\n",
+              // queue->currentProcess,
+              // queue->processes[queue->currentProcess]->priority,
+              // queue->processes[currentPIndex]->priority);
+      if (queue->processes[currentPIndex] == NULL) {
+        fprintf(stderr, "Error: Process %d is null\n", currentPIndex);
+      }
       queue->processes[currentPIndex]->parsedCurrentInstruction = false;
       queue->processes[currentPIndex]->cpuTicks = 0;
       queue->processes[currentPIndex]->fastTicks++;
