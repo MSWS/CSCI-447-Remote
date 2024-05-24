@@ -104,7 +104,12 @@ void Terminate(int pid) {
 	Remove(pid);
 }
 
-int main() {
+int main(int argc, char** argv) {
+  if (argc != 2) {
+    printf("Simulate [LRU/RANDOM/LFU]\n");
+    return 0;
+  }
+
 	int i;
 	// initialize the process hash table
 	for (i = 0; i < TABLESIZE; i++) table[i] = NULL;
