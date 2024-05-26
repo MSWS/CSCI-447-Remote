@@ -1,120 +1,164 @@
-/*
- *	PageSim.c
- *
- *	Demo of CSCI 447 memory management simulator
- *
- *	Filip Jagodzinski, Computer Science, WWU, 21 February 2018
- */
-
+#include "MemSim.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "MemSim.h"
+#include <string.h>
 
-#define TABLESIZE	97		// size of hash table of processes
-#define MAXPROC		64		// maximum number of processes in the system
-#define PAGESIZE	4096		// system page size
+#define MAX_PROCESSES 64
+#define PAGE_SIZE 4096
+#define TABLE_SIZE 2048
 
-// data structure for process hash table entries
-typedef struct procstruct {
-	int pid;
-    int page;
-	struct procstruct* next;
-} proc;
+struct PageTableEntry {
+  int pid;
+  int page;
+  bool dirty;
+  bool read;
+  bool valid;
+};
 
-proc* table[TABLESIZE];		// process hash table
-int procCount = 0;		// number of processes
-int pageCount = 0;
+int lastEvictedPage = 0;
+bool IsPIDInTable(int pid);
+int GetUniquePIDCount();
+int GetExistingPage(int pid, int page, bool write);
+int GetNewPage();
+void EvictPage(int page);
 
+struct PageTableEntry pageTable[TABLE_SIZE];
 
-// look for pid in the hash table
-// if pid found, return 1
-// if pid not found and number of processes < MAXPROC, add pid to hash table and return 1
-// if pid not found and number of processes >= MAXPROC, return 0
+int lfu[TABLE_SIZE];
 
-int find(int pid, int page) {
-	int index = (pid + page) % TABLESIZE;
-	proc* node = table[index];
-	proc* prev = NULL;
+enum Policy { LRU, RANDOM, LFU } policy;
 
-	// look along the chain for this hash table index
-	while (node != NULL && (node->pid != pid || node ->page != page)) {
-		prev = node;
-		node = node->next;
-	}
-
-	// pid not found in hash table
-	if (node == NULL) {
-		if (procCount >= MAXPROC)
-			return 0;		// too many processes
-
-		else {				// add new process
-			node = (proc*) malloc(sizeof(proc));
-			node->pid = pid;
-            node->page = page;
-			node->next = NULL;
-			procCount++;
-            pageCount++;
-			if (prev == NULL)
-				table[index] = node;
-			else
-				prev->next = node;
-		}
-	}
-	return 1;
-}
-
-// remove a pid from the hash table
-void Remove(int pid) {
-	int index = pid % TABLESIZE;
-	proc* node = table[index];
-	proc* prev = NULL;
-
-	// look along the chain for this hash table index
-	while (node != NULL && node->pid != pid) {
-		prev = node;
-		node = node->next;
-	}
-
-	// if pid found, remove it
-	if (node != NULL) {
-		if (prev == NULL)
-			table[index] = node->next;
-		else
-			prev->next = node->next;
-		free(node);
-	}
-}
-
-// called in response to a memory access attempt by process pid to memory address
-int Access(int pid, int address, int write) {
-	if (find(pid, address/PAGESIZE)) {
-		printf("pid %d wants %s access to address %d on page %d. Page count is %d\n", 
-		       pid, (write) ? "write" : "read", address, address/PAGESIZE, pageCount);
-		return 1;
-	} else {
-		printf("pid %d refused\n", pid);
-		return 0;
-	}
-}
-
-// called when process terminates
-void Terminate(int pid) {
-	printf("pid %d terminated\n", pid);
-	procCount--;
-	Remove(pid);
-}
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   if (argc != 2) {
-    printf("Simulate [LRU/RANDOM/LFU]\n");
+    printf("Usage: ./Simulate [LRU/RANDOM/LFU]\n");
     return 0;
   }
 
-	int i;
-	// initialize the process hash table
-	for (i = 0; i < TABLESIZE; i++) table[i] = NULL;
+  char *arg = argv[1];
+  if (strcmp(arg, "LRU") != 0 && strcmp(arg, "RANDOM") != 0 &&
+      strcmp(arg, "LFU") != 0) {
+    printf("Usage: ./Simulate [LRU/RANDOM/LFU]\n");
+    return 0;
+  }
 
-	printf("MMU simulation started\n");
-	Simulate(1000);
-	printf("MMU simulation completed\n");
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    pageTable[i].pid = -1;
+    pageTable[i].page = -1;
+    pageTable[i].dirty = false;
+    pageTable[i].read = false;
+    pageTable[i].valid = false;
+  }
+
+  if (strcmp(arg, "LRU") == 0) {
+    printf("LRU Policy\n");
+    policy = LRU;
+  } else if (strcmp(arg, "RANDOM") == 0) {
+    printf("RANDOM Policy\n");
+    policy = RANDOM;
+  } else if (strcmp(arg, "LFU") == 0) {
+    printf("LFU Policy\n");
+    policy = LFU;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+      lfu[i] = -1;
+    }
+  }
+
+  Simulate(1000);
+  return 0;
+}
+
+void Terminate(int pid) { printf("omg much wow bye %d\n", pid); }
+
+int Access(int pid, int address, int write) {
+  if (!IsPIDInTable(pid)) {
+    if (GetUniquePIDCount() >= MAX_PROCESSES) {
+      // printf("pid: %d, address: %d, write: %d\n", pid, address, write);
+      // Terminate(pid);
+      return 0;
+    }
+  }
+
+  int page = address / PAGE_SIZE;
+  int existing = GetExistingPage(pid, page, write);
+  if (existing != -1) {
+    return 1;
+  }
+
+  int newPage = GetNewPage();
+  if (pageTable[newPage].valid)
+    EvictPage(newPage);
+
+  pageTable[newPage].pid = pid;
+  pageTable[newPage].page = page;
+  pageTable[newPage].dirty = write;
+  pageTable[newPage].read = true;
+  pageTable[newPage].valid = true;
+  return 1;
+}
+
+int GetExistingPage(int pid, int page, bool write) {
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    if (pageTable[i].valid == false)
+      continue;
+    if (pageTable[i].pid != pid || pageTable[i].page != page)
+      continue;
+    pageTable[i].read = true;
+    if (write)
+      pageTable[i].dirty = true;
+    return i;
+  }
+  return -1;
+}
+
+int GetNewPage() {
+  int minIndex = 0, minValue = 0;
+  switch (policy) {
+  case RANDOM:
+    return rand() % TABLE_SIZE;
+  case LFU:
+    for (int i = 0; i < TABLE_SIZE; i++) {
+      if (lfu[i] < lfu[minIndex])
+        minIndex = i;
+    }
+    return minIndex;
+  case LRU:
+    for (int i = 0; i < TABLE_SIZE; i++) {
+      int index = (lastEvictedPage + i) % TABLE_SIZE;
+      if (!pageTable[index].valid)
+        return index;
+      int value = pageTable[index].read + pageTable[index].dirty * 2;
+      if (value < minValue) {
+        minValue = value;
+        minIndex = index;
+      }
+    }
+    for (int i = 0; i < lastEvictedPage; i++) {
+      if (pageTable[i].valid && pageTable[i].read) {
+        pageTable[i].read = false;
+        lfu[i]++;
+      }
+    }
+    return minIndex;
+  }
+  return -1;
+}
+
+int GetUniquePIDCount() {
+  int count = 0;
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    if (pageTable[i].valid)
+      count++;
+  }
+  return count;
+}
+
+void EvictPage(int page) { pageTable[page].valid = false; }
+
+bool IsPIDInTable(int pid) {
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    if (pageTable[i].valid && pageTable[i].pid == pid)
+      return true;
+  }
+  return false;
 }
