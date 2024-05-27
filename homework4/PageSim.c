@@ -7,6 +7,7 @@
 #define MAX_PROCESSES 64
 #define PAGE_SIZE 4096
 #define TABLE_SIZE 2048
+#define LFU_RATE 1000
 
 struct PageTableEntry {
   int pid;
@@ -17,16 +18,21 @@ struct PageTableEntry {
 };
 
 int lastEvictedPage = 0;
+int GetPIDIndex(int pid);
 bool IsPIDInTable(int pid);
 int GetUniquePIDCount();
 int GetExistingPage(int pid, int page, bool write);
 int GetFreePage();
 int GetNewPage();
 void EvictPage(int page);
+void PrintResults();
 
 struct PageTableEntry pageTable[TABLE_SIZE];
 
+int lfuTick = 0;
 int lfu[TABLE_SIZE];
+
+int readSwaps = 0, writeSwaps = 0;
 
 enum Policy { LRU, RANDOM, LFU } policy;
 
@@ -52,58 +58,84 @@ int main(int argc, char **argv) {
   }
 
   if (strcmp(arg, "LRU") == 0) {
-    printf("LRU Policy\n");
     policy = LRU;
   } else if (strcmp(arg, "RANDOM") == 0) {
-    printf("RANDOM Policy\n");
     policy = RANDOM;
   } else if (strcmp(arg, "LFU") == 0) {
-    printf("LFU Policy\n");
     policy = LFU;
-    for (int i = 0; i < TABLE_SIZE; i++) {
+    for (int i = 0; i < TABLE_SIZE; i++)
       lfu[i] = -1;
-    }
   }
 
-  Simulate(1000);
+  Simulate(100000);
+  PrintResults();
   return 0;
 }
 
-void Terminate(int pid) { printf("omg much wow bye %d\n", pid); }
+void PrintResults() {
+  // <row,PID,p,dirty bit,reference bit>
+  printf("row, PID,    p, dirty bit ,reference bit\n");
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    printf("%3d, %3d, %5d, %1d, %1d\n", i, pageTable[i].pid, pageTable[i].page,
+           pageTable[i].dirty, pageTable[i].read);
+  }
+
+  printf("Read Swaps: %d\n", readSwaps);
+  printf("Write Swaps: %d\n", writeSwaps);
+  printf("Total Swaps: %d\n", readSwaps + writeSwaps);
+  printf("%% of page faults that required both writing and reading: %f\n",
+         (float)writeSwaps / (readSwaps + writeSwaps) * 100);
+}
+
+void Terminate(int pid) {
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    if (pageTable[i].pid == pid)
+      pageTable[i].valid = false;
+  }
+}
 
 int Access(int pid, int address, int write) {
-  if (!IsPIDInTable(pid)) {
-    if (GetUniquePIDCount() >= MAX_PROCESSES) {
-      // printf("pid: %d, address: %d, write: %d\n", pid, address, write);
-      // Terminate(pid);
-      return 0;
+  if (policy == LFU) {
+    lfuTick++;
+    if (lfuTick % LFU_RATE == 0) {
+      for (int i = 0; i < TABLE_SIZE; i++) {
+        if (lfu[i] > 0)
+          lfu[i] = lfu[i] / 2;
+      }
     }
   }
 
+  if (!IsPIDInTable(pid))
+    if (GetUniquePIDCount() >= MAX_PROCESSES)
+      return 0;
+
   int page = address / PAGE_SIZE;
   int existing = GetExistingPage(pid, page, write);
-  if (existing != -1) {
+  if (existing != -1)
+    return 1;
+
+  int newPage = GetFreePage();
+  if (newPage != -1) {
+    pageTable[newPage].pid = pid;
+    pageTable[newPage].page = page;
+    pageTable[newPage].dirty = write;
+    pageTable[newPage].read = !write;
+    pageTable[newPage].valid = true;
+    lfu[newPage] = 0;
+    readSwaps++;
     return 1;
   }
 
-  int newPage = GetFreePage();
-  if(newPage != -1) {
-  pageTable[newPage].pid = pid;
-  pageTable[newPage].page = page;
-  pageTable[newPage].dirty = write;
-  pageTable[newPage].read = true;
-  pageTable[newPage].valid = true;
-  }
-
-  int newPage = GetNewPage();
+  newPage = GetNewPage();
   if (pageTable[newPage].valid)
     EvictPage(newPage);
 
   pageTable[newPage].pid = pid;
   pageTable[newPage].page = page;
   pageTable[newPage].dirty = write;
-  pageTable[newPage].read = true;
+  pageTable[newPage].read = !write;
   pageTable[newPage].valid = true;
+  lfu[newPage] = 0;
   return 1;
 }
 
@@ -114,6 +146,8 @@ int GetExistingPage(int pid, int page, bool write) {
     if (pageTable[i].pid != pid || pageTable[i].page != page)
       continue;
     pageTable[i].read = true;
+    if (policy == LFU)
+      lfu[i]++;
     if (write)
       pageTable[i].dirty = true;
     return i;
@@ -122,15 +156,15 @@ int GetExistingPage(int pid, int page, bool write) {
 }
 
 int GetFreePage() {
-  for(int i = 0; i < TABLE_SIZE; i++) {
-    if(!pageTable[i].valid)
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    if (!pageTable[i].valid)
       return i;
   }
   return -1;
 }
 
 int GetNewPage() {
-  int minIndex = 0, minValue = 0;
+  int minIndex = 0, minValue = 0, count = 0;
   switch (policy) {
   case RANDOM:
     return rand() % TABLE_SIZE;
@@ -143,40 +177,57 @@ int GetNewPage() {
   case LRU:
     for (int i = 0; i < TABLE_SIZE; i++) {
       int index = (lastEvictedPage + i) % TABLE_SIZE;
-      if (!pageTable[index].valid)
-        return index;
       int value = pageTable[index].read + pageTable[index].dirty * 2;
       if (value < minValue) {
         minValue = value;
         minIndex = index;
+        count = i;
       }
     }
-    for (int i = 0; i < lastEvictedPage; i++) {
-      if (pageTable[i].valid && pageTable[i].read) {
-        pageTable[i].read = false;
-        lfu[i]++;
-      }
+    for (int i = 0; i < count; i++) {
+      int index = (lastEvictedPage + i) % TABLE_SIZE;
+      pageTable[index].read = false;
     }
     return minIndex;
   }
+  perror("We so fucked up\n");
   return -1;
 }
 
 int GetUniquePIDCount() {
   int count = 0;
+  int seen[MAX_PROCESSES];
   for (int i = 0; i < TABLE_SIZE; i++) {
-    if (pageTable[i].valid)
-      count++;
+    if (!pageTable[i].valid)
+      continue;
+    bool found = false;
+    for (int j = 0; j < count; j++) {
+      if (seen[j] == pageTable[i].pid) {
+        found = true;
+        break;
+      }
+    }
+    if (!found)
+      seen[count++] = pageTable[i].pid;
   }
   return count;
 }
 
-void EvictPage(int page) { pageTable[page].valid = false; }
+void EvictPage(int page) {
+  if (pageTable[page].dirty)
+    writeSwaps++;
+  else
+    readSwaps++;
+  pageTable[page].valid = false;
+  lastEvictedPage = page;
+}
 
-bool IsPIDInTable(int pid) {
+int GetPIDIndex(int pid) {
   for (int i = 0; i < TABLE_SIZE; i++) {
     if (pageTable[i].valid && pageTable[i].pid == pid)
-      return true;
+      return i;
   }
-  return false;
+  return -1;
 }
+
+bool IsPIDInTable(int pid) { return GetPIDIndex(pid) != -1; }
