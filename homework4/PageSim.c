@@ -20,6 +20,7 @@ int lastEvictedPage = 0;
 bool IsPIDInTable(int pid);
 int GetUniquePIDCount();
 int GetExistingPage(int pid, int page, bool write);
+int GetFreePage();
 int GetNewPage();
 void EvictPage(int page);
 
@@ -85,6 +86,15 @@ int Access(int pid, int address, int write) {
     return 1;
   }
 
+  int newPage = GetFreePage();
+  if(newPage != -1) {
+  pageTable[newPage].pid = pid;
+  pageTable[newPage].page = page;
+  pageTable[newPage].dirty = write;
+  pageTable[newPage].read = true;
+  pageTable[newPage].valid = true;
+  }
+
   int newPage = GetNewPage();
   if (pageTable[newPage].valid)
     EvictPage(newPage);
@@ -107,6 +117,14 @@ int GetExistingPage(int pid, int page, bool write) {
     if (write)
       pageTable[i].dirty = true;
     return i;
+  }
+  return -1;
+}
+
+int GetFreePage() {
+  for(int i = 0; i < TABLE_SIZE; i++) {
+    if(!pageTable[i].valid)
+      return i;
   }
   return -1;
 }
