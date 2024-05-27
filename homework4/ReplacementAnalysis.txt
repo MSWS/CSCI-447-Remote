@@ -1,0 +1,31 @@
+		Read	Write	%	Total
+LRU	40383	9266	14.77	49649
+	53049	12174	14.93	65223
+	36666	8144	14.53	44810
+	39294	8918	14.67	48212
+	35502	7877	14.63	43379
+Avg	40978.8	9275.8	14.706	50254.6
+LFU	37380	8378	14.63	45758
+	35879	8076	14.62	43955
+	37285	8391	14.63	45676
+	36252	8151	14.67	44403
+	37140	8313	14.58	45453
+Avg	36787.2	8261.8	14.626	45049
+RANDOM	10078	6601	31.76	16679
+	9182	7363	35.34	16545
+	9748	6585	32.31	16333
+	9607	6721	32.82	16328
+	10222	6884	32.09	17106
+Avg	9767.4	6830.8	32.864	16598.2
+
+We see that the LRU and LFU algorithms have similar performance, though notably LRU generally took longer to
+process the same number of requests. In my mind, LFU would have a higher overhead due to the need to maintain
+a frequency count for each page, though quantiative analysis would be needed to confirm this.
+
+The random algorithm performed significantly worse than the other two, with 16k page swaps compared to
+50k for LRU and 45k for LFU. Similarly, the RANDOM algorithm had the highest percentage of
+write+reads at 32%.
+
+Overall, I would recommend using the LFU algorithm as its results seem to perform the best, and it ran
+in a reasonable amount of time. The LRU algorithm is also a good choice, but it took longer to run than
+the LFU algorithm for slightly worse results.

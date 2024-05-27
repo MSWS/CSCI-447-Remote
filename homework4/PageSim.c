@@ -33,6 +33,7 @@ int lfuTick = 0;
 int lfu[TABLE_SIZE];
 
 int readSwaps = 0, writeSwaps = 0;
+int readAndWriteSwaps = 0;
 
 enum Policy { LRU, RANDOM, LFU } policy;
 
@@ -84,7 +85,7 @@ void PrintResults() {
   printf("Write Swaps: %d\n", writeSwaps);
   printf("Total Swaps: %d\n", readSwaps + writeSwaps);
   printf("%% of page faults that required both writing and reading: %f\n",
-         (float)writeSwaps / (readSwaps + writeSwaps) * 100);
+         (float)readAndWriteSwaps / (readSwaps + writeSwaps) * 100);
 }
 
 void Terminate(int pid) {
@@ -127,6 +128,9 @@ int Access(int pid, int address, int write) {
   }
 
   newPage = GetNewPage();
+  if (!write && pageTable[newPage].dirty)
+    readAndWriteSwaps++;
+
   if (pageTable[newPage].valid)
     EvictPage(newPage);
 
@@ -141,15 +145,16 @@ int Access(int pid, int address, int write) {
 
 int GetExistingPage(int pid, int page, bool write) {
   for (int i = 0; i < TABLE_SIZE; i++) {
-    if (pageTable[i].valid == false)
+    if (!pageTable[i].valid)
       continue;
     if (pageTable[i].pid != pid || pageTable[i].page != page)
       continue;
-    pageTable[i].read = true;
-    if (policy == LFU)
-      lfu[i]++;
     if (write)
       pageTable[i].dirty = true;
+    else
+      pageTable[i].read = true;
+    if (policy == LFU)
+      lfu[i]++;
     return i;
   }
   return -1;
