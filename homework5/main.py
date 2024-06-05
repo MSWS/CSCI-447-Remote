@@ -24,7 +24,6 @@ def main():
         headLocation = random.randint(0, DISK_SIZE - 1)
         headDirection = True if random.randint(0, 1) else False
         destinations = [random.randint(0, DISK_SIZE - 1) for i in range(1000)]
-        print("Doing random stuff")
     else:
         headLocation = int(args[1])
         headDirection = args[2].upper() == "H"
@@ -148,7 +147,7 @@ class GeneralSeekMethod(SeekMethod):
             # We've reached the highest cylinder, keep going till we get to DISK_SIZE - 1 to turn back around
             self.headCylinderCount += self.max - self.headLocation
             self.headLocation = self.max
-            self.headDirectionChanges += 1
+            # self.headDirectionChanges += 1
             self.headDirection = False
             return len(self.destinations) - 1
         else:
@@ -158,7 +157,7 @@ class GeneralSeekMethod(SeekMethod):
             # We've reached the lowest cylinder, keep going until we get to 0 to turn back around
             self.headCylinderCount += self.headLocation - self.min
             self.headLocation = self.min
-            self.headDirectionChanges += 1
+            # self.headDirectionChanges += 1
             self.headDirection = True
             return 0
 

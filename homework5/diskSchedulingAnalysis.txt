@@ -1,0 +1,14 @@
+== Service Stats ==
+FCFS 664 3294241
+SSTF 1 12163
+SCAN 0 53846
+C-SCAN 2 29962
+LOOK 0 53738
+C-LOOK 2 29920
+
+Analyzing the above results, it is apparentl that FCFS is very bad if the OS/Hard Disk is able to know a large amount of requests ahead of time.
+Aside from that, I imagine the LOOK systems are better than the SCAN systems, though they likely take a slightly longer time to process.
+SSTF also seems pretty decent.
+
+There's some error in SCAN/LOOK, as they should always have at least 1 rotation, but frankly I am too tired and it's finals and I think I'll
+pass without fixing it so SHIP IT!
